@@ -17,10 +17,12 @@ class main:
         protocol = None
         tag = None
         # count tags
+        # Use dstport to look up protocol and tag from lookup table
         if dstPort in self.lookupTable:
             dstPortMap = self.lookupTable[dstPort]
             protocol = dstPortMap[0]
             tag = dstPortMap[1]
+            # Track tag counts
             if tag in self.TagCount:
                 self.TagCount[tag] += 1
             else:
@@ -28,6 +30,7 @@ class main:
         else:
             self.TagCount["Untagged"] += 1
         # count combinations
+        # Track port/protocal combination counts
         if dstPort in self.PortProtCount:
             if protocol in self.PortProtCount[dstPort]:
                 self.PortProtCount[dstPort][protocol] += 1
@@ -41,6 +44,7 @@ class main:
             fileLines = file.readlines()
             for line in fileLines:
                 elements = line.split(" ")
+                # extract dstport value
                 dstPort = elements[5].lower()
                 self.mapTag(dstPort)
     
@@ -62,7 +66,9 @@ class main:
     def mapLogData(self, input, lookup):
         self.TagCount = {"Untagged" : 0} # tag : count
         self.PortProtCount = dict() # dstport : {protocol : count}
+        # Parse lookup table
         self.lookupTable = self.parseLookup(lookup) # dstport : protocol, tag
+        # Parse logs
         self.parseInput(input)
         self.writeToFile()
 
